@@ -27,6 +27,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Random;
 
 import static net.sourceforge.argparse4j.impl.Arguments.store;
 
@@ -34,6 +35,7 @@ public class BasicProducerExample {
 
     public static void main(String[] args) {
         ArgumentParser parser = argParser();
+        Random random = new Random(100);
 
         try {
             Namespace res = parser.parseArgs(args);
@@ -58,7 +60,7 @@ public class BasicProducerExample {
             SimpleProducer<byte[], byte[]> producer = new SimpleProducer<>(producerConfig, syncSend);
 
             for (int i = 0; i < noOfMessages; i++) {
-                producer.send(topic, getKey(i), getEvent(messageType, i));
+                producer.send(topic, getKey(i), getEvent(messageType, random.nextInt()));
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
@@ -81,7 +83,7 @@ public class BasicProducerExample {
 
     private static byte[] getEvent(String messageType, int i) {
         if ("string".equalsIgnoreCase(messageType))
-            return serialize("message" + i);
+            return serialize("temperature:" + i);
         else
             return serialize(new MyEvent(i, "event" + i, "test", System.currentTimeMillis()));
     }
